@@ -1,338 +1,617 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>son. | Web3 Native</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <style>
-    :root {
-      --bg: #000;
-      --text: #fff;
-      --accent: #0f9d58;
-      --gray: #888;
-      --card: rgba(15,15,15,0.95);
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Courier New', Courier, monospace;
-      line-height: 1.8;
-      font-size: 17px;
-      overflow-x: hidden;
-      position: relative;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Son - Web3 Degen Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Subtle parallax layers */
-    .parallax, .grid-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -1;
-    }
-    .parallax {
-      background: radial-gradient(circle at 30% 70%, rgba(15,157,88,0.04) 0%, transparent 60%),
-                  radial-gradient(circle at 70% 30%, rgba(15,157,88,0.03) 0%, transparent 60%);
-    }
-    .grid-layer {
-      background-image: linear-gradient(rgba(15,157,88,0.04) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(15,157,88,0.04) 1px, transparent 1px);
-      background-size: 80px 80px;
-      opacity: 0.15;
-    }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-    /* Fixed Top-Right Navigation */
-    nav {
-      position: fixed;
-      top: 30px;
-      right: 40px;
-      z-index: 1000;
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: all 0.6s ease;
-    }
-    nav.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 32px;
-      font-size: 0.95rem;
-      letter-spacing: 2px;
-    }
-    nav a {
-      color: var(--gray);
-      text-decoration: none;
-      transition: color 0.4s ease;
-      position: relative;
-    }
-    nav a::after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 1px;
-      bottom: -6px;
-      left: 0;
-      background: var(--accent);
-      transition: width 0.4s ease;
-    }
-    nav a:hover {
-      color: var(--accent);
-    }
-    nav a:hover::after {
-      width: 100%;
-    }
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: #0f0;
+            z-index: 1001;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
 
-    /* Mobile menu toggle */
-    .menu-toggle {
-      display: none;
-      color: var(--text);
-      font-size: 1.6rem;
-      cursor: pointer;
-      position: fixed;
-      top: 34px;
-      right: 40px;
-      z-index: 1100;
-    }
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 5%;
+            z-index: 1000;
+            border-bottom: 1px solid #333;
+            transition: all 0.3s ease;
+        }
 
-    @media (max-width: 768px) {
-      nav {
-        position: fixed;
-        top: 0; right: 0; bottom: 0; left: 0;
-        background: rgba(0,0,0,0.97);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.5s ease;
-      }
-      nav.visible {
-        opacity: 1;
-        visibility: visible;
-      }
-      nav ul {
-        flex-direction: column;
-        text-align: center;
-        gap: 50px;
-        font-size: 1.8rem;
-      }
-      .menu-toggle { display: block; }
-    }
+        nav.scrolled {
+            padding: 1rem 5%;
+            border-bottom: 1px solid #0f0;
+        }
 
-    header {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 0 20px;
-    }
-    .profile-img {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      border: 2px solid var(--accent);
-      margin-bottom: 36px;
-      object-fit: cover;
-      transition: all 0.6s ease;
-      filter: grayscale(20%);
-    }
-    .profile-img:hover {
-      border-color: var(--accent);
-      filter: grayscale(0%);
-      transform: translateY(-4px);
-    }
-    h1 {
-      font-size: 4.8rem;
-      font-weight: 400;
-      letter-spacing: 8px;
-      margin-bottom: 12px;
-    }
-    .subtitle {
-      font-size: 1.35rem;
-      color: var(--gray);
-      letter-spacing: 3px;
-    }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    section {
-      padding: 140px 10% 100px;
-      max-width: 1100px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 2;
-    }
-    h2 {
-      font-size: 2.4rem;
-      font-weight: 400;
-      margin-bottom: 60px;
-      letter-spacing: 3px;
-      position: relative;
-      display: inline-block;
-    }
-    h2::after {
-      content: '';
-      position: absolute;
-      width: 40px;
-      height: 1px;
-      background: var(--accent);
-      bottom: -12px;
-      left: 0;
-    }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #0f0;
+        }
 
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 1.4s ease, transform 1.4s ease;
-    }
-    .reveal.active { opacity: 1; transform: translateY(0); }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 40px;
-    }
-    .card {
-      background: var(--card);
-      padding: 36px;
-      border: 1px solid rgba(15,157,88,0.15);
-      transition: all 0.5s ease;
-      backdrop-filter: blur(8px);
-    }
-    .card:hover {
-      border-color: var(--accent);
-      transform: translateY(-6px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+            letter-spacing: 1px;
+        }
 
-    li { margin: 16px 0; padding-left: 26px; position: relative; }
-    li::before { content: '>'; color: var(--accent); position: absolute; left: 0; opacity: 0.7; }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #0f0;
+            transition: width 0.3s ease;
+        }
 
-    .socials a {
-      color: var(--gray);
-      font-size: 1.9rem;
-      margin: 0 18px;
-      transition: color 0.4s ease;
-    }
-    .socials a:hover { color: var(--accent); }
+        .nav-links a:hover {
+            color: #0f0;
+        }
 
-    footer {
-      text-align: center;
-      padding: 100px 20px 80px;
-      color: var(--gray);
-      font-size: 0.95rem;
-      letter-spacing: 1px;
-    }
-  </style>
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 2px;
+            background: #0f0;
+            transition: all 0.3s ease;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.02) 2px, rgba(0,255,0,0.02) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,255,0,0.02) 2px, rgba(0,255,0,0.02) 4px);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .profile-image {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 4px solid #0f0;
+            margin: 0 auto 2rem;
+            object-fit: cover;
+            box-shadow: 0 0 30px rgba(0,255,0,0.3);
+            background: #000;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            letter-spacing: 8px;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(0,255,0,0.5);
+        }
+
+        .terminal-text {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            color: #0f0;
+            margin-bottom: 2rem;
+            min-height: 60px;
+            display: block;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 12px;
+            height: 1.4em;
+            background: #0f0;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1.2rem 3rem;
+            background: #0f0;
+            color: #000;
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid #0f0;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: transparent;
+            color: #0f0;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,255,0,0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #0f0;
+        }
+
+        .btn-outline:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        /* General Sections */
+        section {
+            padding: 8rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 4rem;
+            letter-spacing: 4px;
+            color: #0f0;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::before {
+            content: '> ';
+            color: #0f0;
+        }
+
+        /* About */
+        .about-text p {
+            font-size: 1.15rem;
+            line-height: 2;
+            color: #ccc;
+            margin-bottom: 1.8rem;
+            padding-left: 1rem;
+            border-left: 2px solid #222;
+            transition: border-color 0.4s;
+        }
+
+        .about-text p:hover {
+            border-left-color: #0f0;
+        }
+
+        .highlight { color: #0f0; font-weight: 700; }
+
+        /* Specialties, Skills, Projects, Communities - reused card styles with minor tweaks */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .card {
+            padding: 2.5rem;
+            border: 2px solid #222;
+            background: rgba(10,10,10,0.8);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: #0f0;
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,255,0,0.15);
+        }
+
+        .card h3 {
+            color: #0f0;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        /* Skills progress */
+        .skill-bar {
+            height: 8px;
+            background: #111;
+            margin-top: 1rem;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background: #0f0;
+            width: 0;
+            transition: width 2s ease;
+            box-shadow: 0 0 15px rgba(0,255,0,0.6);
+        }
+
+        /* Contact */
+        .social-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .social-link {
+            padding: 2rem;
+            border: 2px solid #222;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 2px;
+            transition: all 0.4s;
+        }
+
+        .social-link:hover {
+            border-color: #0f0;
+            color: #0f0;
+            background: rgba(0,255,0,0.05);
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 5%;
+            text-align: center;
+            border-top: 1px solid #222;
+            color: #666;
+        }
+
+        /* Scroll to top */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(0,255,0,0.2);
+            border: 2px solid #0f0;
+            color: #0f0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .menu-toggle { display: flex; }
+            .nav-links {
+                position: fixed;
+                top: 0; right: -100%;
+                height: 100vh;
+                width: 80%;
+                background: #000;
+                flex-direction: column;
+                padding-top: 8rem;
+                transition: 0.4s;
+                border-left: 1px solid #0f0;
+            }
+            .nav-links.active { right: 0; }
+            .grid, .social-links { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
-  <div class="parallax"></div>
-  <div class="grid-layer"></div>
+    <div class="progress-bar"></div>
 
-  <!-- Top-right Menu -->
-  <div class="menu-toggle" onclick="document.querySelector('nav').classList.toggle('visible')">
-    <i class="fas fa-bars"></i>
-  </div>
-  <nav>
-    <ul>
-      <li><a href="#about">ABOUT</a></li>
-      <li><a href="#skills">SKILLS</a></li>
-      <li><a href="#projects">PROJECTS</a></li>
-      <li><a href="#contact">CONTACT</a></li>
-    </ul>
-  </nav>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">SON</div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#specialties">Specialties</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#communities">Communities</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </nav>
 
-  <header>
-    <div>
-      <img src="https://via.placeholder.com/300/000000/0f9d58?text=son" alt="son" class="profile-img"/>
-      <h1>son</h1>
-      <p class="subtitle">WEB3 COMMUNITY ARCHITECT & DEGEN STRATEGIST</p>
-    </div>
-  </header>
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <img src="https://via.placeholder.com/180/0f0/000?text=SON" alt="Son" class="profile-image">
+            <h1>SON</h1>
+            <div class="terminal-text">
+                <span id="typewriter"></span><span class="cursor">_</span>
+            </div>
+            <div class="cta-buttons">
+                <a href="#contact" class="btn">Hire Me</a>
+                <a href="#projects" class="btn btn-outline">View Work</a>
+            </div>
+        </div>
+    </section>
 
-  <section id="about" class="reveal">
-    <h2>~ /about</h2>
-    <p style="max-width:860px; margin:0 auto; font-size:1.15rem; color:#ccc;">
-      I’m a Web3 degen with purpose — deep in the trenches of community management, raiding, degen trading, and content creation. I didn’t just stumble into the space — I stayed, learned, and kept showing up when others left. That’s what built my edge.<br><br>
-      My strength lies in understanding what drives real communities: energy, consistency, and trust. I’ve helped grow and manage vibrant ecosystems, led raid teams that actually convert, and created content that doesn’t just inform — it connects. From high-impact Twitter threads to meme raids and deep engagement strategies, I know how to turn attention into loyalty.<br><br>
-      On the trading side, I’ve lived through pumps, rugs, and everything in between — but I treat every cycle like a classroom. Degen trading taught me risk, timing, and most of all, emotional discipline.<br><br>
-      This isn’t just a side hustle — it’s culture, community, and a chance to build something real. Whether I’m helping projects grow from the ground up or educating newcomers with relatable content, I move with one focus: <strong style="color:var(--accent)">build with people, not just for them</strong>.<br><br>
-      If you're looking for someone who knows how to activate a crowd, manage the madness, and create value that lasts — I’m locked in. Let's build.
-    </p>
-  </section>
+    <section id="about">
+        <h2 class="section-title">ABOUT ME</h2>
+        <div class="about-text">
+            <p>I’m a Web3 degen with purpose — deep in the trenches of community management, raiding, degen trading, and content creation. I didn’t just stumble into the space — I stayed, learned, and kept showing up when others left. That’s what built my edge.</p>
+            <p>My strength lies in understanding what drives real communities: energy, consistency, and trust. I’ve helped grow and manage vibrant ecosystems, led raid teams that actually convert, and created content that doesn’t just inform — it connects. From high-impact Twitter threads to meme raids and deep engagement strategies, I know how to turn attention into loyalty.</p>
+            <p>On the trading side, I’ve lived through pumps, rugs, and everything in between — but I treat every cycle like a classroom. Degen trading taught me risk, timing, and most of all, <span class="highlight">emotional discipline</span>.</p>
+            <p>This isn’t just a side hustle — it’s culture, community, and a chance to build something real. Whether I’m helping projects grow from the ground up or educating newcomers with relatable content, I move with one focus: <span class="highlight">build with people, not just for them</span>.</p>
+            <p>If you're looking for someone who knows how to activate a crowd, manage the madness, and create value that lasts — <strong>I’m locked in. Let's build.</strong></p>
+        </div>
+    </section>
 
-  <section id="skills" class="reveal">
-    <h2>~ /skills</h2>
-    <div class="grid">
-      <div class="card"> ... your skills cards ... </div>
-      <!-- keep all your skill cards -->
-    </div>
-  </section>
+    <section id="specialties">
+        <h2 class="section-title">SPECIALTIES</h2>
+        <div class="grid">
+            <div class="card"><h3>Community Management</h3><p>Growing & nurturing engaged Discord/Telegram communities from 0 → 100k+</p></div>
+            <div class="card"><h3>Raid Leadership</h3><p>Coordinated high-impact Twitter & Discord raids that actually move TVL and holder count</p></div>
+            <div class="card"><h3>Degen Trading</h3><p>Sniping launches, farming airdrops, surviving rugs — I’ve seen every cycle</p></div>
+            <div class="card"><h3>Content & Threads</h3><p>Long-form Twitter threads, memes, alpha calls, educational content that converts</p></div>
+        </div>
+    </section>
 
-  <section id="projects" class="reveal">
-    <h2>~ /projects</h2>
-    <div class="grid">
-      <!-- your project cards -->
-    </div>
-  </section>
+    <section id="skills">
+        <h2 class="section-title">SKILLS</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Community Growth <span style="float:right; color:#666;">95%</span></h3>
+                <div class="skill-bar"><div class="skill-progress" style="width:95%"></div></div>
+            </div>
+            <div class="card">
+                <h3>Raid Execution <span style="float:right; color:#666;">98%</span></h3>
+                <div class="skill-bar"><div class="skill-progress" style="width:98%"></div></div>
+            </div>
+            <div class="card">
+                <h3>Content Creation <span style="float:right; color:#666;">90%</span></h3>
+                <div class="skill-bar"><div class="skill-progress" style="width:90%"></div></div>
+            </div>
+            <div class="card">
+                <h3>Degen Intuition <span style="float:right; color:#666;">92%</span></h3>
+                <div class="skill-bar"><div class="skill-progress" style="width:92%"></div></div>
+            </div>
+        </div>
+    </section>
 
-  <section id="contact" class="reveal">
-    <h2>~ /contact</h2>
-    <p style="margin-bottom:40px; text-align:center;">Always raiding. Always replying.</p>
-    <div class="socials" style="text-align:center; font-size:2rem;">
-      <a href="https://x.com/@only_SONofweb3/" target="_blank">Twitter</a>
-      <a href="https://t.me/mhillls" target="_blank">Telegram</a>
-      <a href="https://discord.com/">Discord</a>
-    </div>
-  </section>
+    <section id="projects">
+        <h2 class="section-title">PAST PROJECTS</h2>
+        <div class="grid">
+            <div class="card"><h3>Project Alpha</h3><p>Led community from 2k → 85k members in 3 months. Organized 50+ successful raids.</p></div>
+            <div class="card"><h3>Memecoin Beta</h3><p>Head of community & raids. Helped launch to $45M MC in first week.</p></div>
+            <div class="card"><h3>NFT Collection Gamma</h3><p>Ran Twitter engagement campaigns resulting in 100% mint out in 4 minutes.</p></div>
+            <div class="card"><h3>DeFi Protocol Delta</h3><p>Grew Telegram from 1k → 42k, managed moderator team, daily engagement strategies.</p></div>
+        </div>
+    </section>
 
-  <footer>
-    <p>© 2025 son — Built with discipline in public</p>
-  </footer>
+    <section id="communities">
+        <h2 class="section-title">COMMUNITIES I'VE WORKED WITH</h2>
+        <div class="grid">
+            <div class="card"><h3>Alpha Raiders</h3><p>Core team</p></div>
+            <div class="card"><h3>Degen Syndicate</h3><p>Lead moderator</p></div>
+            <div class="card"><h3>Meme Lords</h3><p>Raid captain</p></div>
+            <div class="card"><h3>100x Gems</h3><p>Community manager</p></div>
+        </div>
+    </section>
 
-  <script>
-    // Show nav after leaving hero
-    window.addEventListener('scroll', () => {
-      const nav = document.querySelector('nav');
-      if (window.scrollY > window.innerHeight * 0.5) {
-        nav.classList.add('visible');
-      } else {
-        nav.classList.remove('visible');
-      }
+    <section id="contact">
+        <h2 class="section-title">LET'S CONNECT</h2>
+        <p style="text-align:center; font-size:1.4rem; color:#999; max-width:800px; margin:0 auto 4rem;">
+            Always open to new opportunities, raids, or just degen talk.<br>
+            Hit me up — I reply fast.
+        </p>
+        <div class="social-links">
+            <a href="https://twitter.com/yourhandle" class="social-link" target="_blank">Twitter @yourhandle ↗</a>
+            <a href="https://t.me/yourhandle" class="social-link" target="_blank">Telegram @yourhandle ↗</a>
+            <a href="mailto:son@web3degen.com" class="social-link">son@web3degen.com ↗</a>
+            <a href="https://discord.com/users/yourid" class="social-link" target="_blank">Discord ↗</a>
+        </div>
+    </section>
 
-      // Subtle parallax
-      const scrolled = window.pageYOffset;
-      document.querySelector('.parallax').style.transform = `translateY(${scrolled * 0.12}px)`;
-      document.querySelector('.grid-layer').style.transform = `translateY(${scrolled * 0.08}px)`;
-    });
+    <footer>
+        © 2025 Son — Web3 Degen. Built in the trenches.
+    </footer>
 
-    // Scroll reveal
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('active');
-      });
-    }, { threshold: 0.1 });
-    reveals.forEach(el => observer.observe(el));
+    <div class="scroll-top">↑</div>
 
-    // Typing effect
-    const h1 = document.querySelector('h1');
-    const text = "son";
-    let i = 0;
-    h1.textContent = '';
-    const type = () => {
-      if (i < text.length) {
-        h1.textContent += text.charAt(i);
-        i++;
-        setTimeout(type, 300);
-      }
-    };
-    setTimeout(type, 1000);
-  </script>
+    <script>
+        // Typing effect
+        const phrases = [
+            "Web3 Degen",
+            "Community Raider",
+            "Reply Guy Extraordinaire",
+            "Locked In Builder"
+        ];
+        let i = 0;
+        let j = 0;
+        let currentPhrase = [];
+        let isDeleting = false;
+        let isEnd = false;
+
+        function type() {
+            const typewriter = document.getElementById('typewriter');
+            isEnd = j === phrases[i].length;
+
+            if (!isDeleting && !isEnd) {
+                currentPhrase.push(phrases[i][j]);
+                j++;
+            }
+            if (isDeleting) {
+                currentPhrase.pop();
+                j--;
+            }
+
+            typewriter.textContent = currentPhrase.join('');
+
+            if (!isDeleting && isEnd) {
+                isDeleting = true;
+                setTimeout(type, 1500);
+            } else if (isDeleting && j === 0) {
+                isDeleting = false;
+                i = (i + 1) % phrases.length;
+                setTimeout(type, 500);
+            } else {
+                setTimeout(type, isDeleting ? 50 : 100);
+            }
+        }
+        type();
+
+        // Scroll progress bar
+        window.addEventListener('scroll', () => {
+            const scroll = document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const width = (scroll / height) * 100;
+            document.querySelector('.progress-bar').style.transform = `scaleX(${width / 100})`;
+
+            // Nav shrink
+            document.querySelector('nav').classList.toggle('scrolled', scroll > 100);
+
+            // Scroll to top button
+            document.querySelector('.scroll-top').classList.toggle('visible', scroll > 500);
+        });
+
+        // Mobile menu
+        document.querySelector('.menu-toggle').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+            document.querySelector('.menu-toggle').classList.toggle('active');
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                if (document.querySelector('.nav-links').classList.contains('active')) {
+                    document.querySelector('.nav-links').classList.remove('active');
+                    document.querySelector('.menu-toggle').classList.remove('active');
+                }
+            });
+        });
+
+        // Scroll to top
+        document.querySelector('.scroll-top').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // GSAP ScrollTrigger animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        document.querySelectorAll('.section-title, .card, .about-text p, .skill-progress').forEach(el => {
+            gsap.from(el, {
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                scrollTrigger: {
+              trigger: el,
+                    start: "top 80%",
+                    toggleActions: "play none none reverse"
+                }
+            });
+        });
+
+        // Skill bars animate when in view
+        document.querySelectorAll('.skill-progress').forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0';
+            ScrollTrigger.create({
+                trigger: bar,
+                start: "top 90%",
+                onEnter: () => bar.style.width = width
+            });
+        });
+    </script>
 </body>
 </html>
