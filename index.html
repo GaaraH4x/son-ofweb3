@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>son. | Web3 Native</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg: #000;
+      --text: #fff;
+      --accent: #0f9d58;
+      --gray: #888;
+      --card: rgba(15,15,15,0.95);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      line-height: 1.8;
+      font-size: 17px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Subtle parallax layers */
+    .parallax, .grid-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .parallax {
+      background: radial-gradient(circle at 30% 70%, rgba(15,157,88,0.04) 0%, transparent 60%),
+                  radial-gradient(circle at 70% 30%, rgba(15,157,88,0.03) 0%, transparent 60%);
+    }
+    .grid-layer {
+      background-image: linear-gradient(rgba(15,157,88,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(15,157,88,0.04) 1px, transparent 1px);
+      background-size: 80px 80px;
+      opacity: 0.15;
+    }
+
+    /* Fixed Top-Right Navigation */
+    nav {
+      position: fixed;
+      top: 30px;
+      right: 40px;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.6s ease;
+    }
+    nav.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 32px;
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+    }
+    nav a {
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.4s ease;
+      position: relative;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 1px;
+      bottom: -6px;
+      left: 0;
+      background: var(--accent);
+      transition: width 0.4s ease;
+    }
+    nav a:hover {
+      color: var(--accent);
+    }
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Mobile menu toggle */
+    .menu-toggle {
+      display: none;
+      color: var(--text);
+      font-size: 1.6rem;
+      cursor: pointer;
+      position: fixed;
+      top: 34px;
+      right: 40px;
+      z-index: 1100;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        position: fixed;
+        top: 0; right: 0; bottom: 0; left: 0;
+        background: rgba(0,0,0,0.97);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.5s ease;
+      }
+      nav.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+      nav ul {
+        flex-direction: column;
+        text-align: center;
+        gap: 50px;
+        font-size: 1.8rem;
+      }
+      .menu-toggle { display: block; }
+    }
+
+    header {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 20px;
+    }
+    .profile-img {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      margin-bottom: 36px;
+      object-fit: cover;
+      transition: all 0.6s ease;
+      filter: grayscale(20%);
+    }
+    .profile-img:hover {
+      border-color: var(--accent);
+      filter: grayscale(0%);
+      transform: translateY(-4px);
+    }
+    h1 {
+      font-size: 4.8rem;
+      font-weight: 400;
+      letter-spacing: 8px;
+      margin-bottom: 12px;
+    }
+    .subtitle {
+      font-size: 1.35rem;
+      color: var(--gray);
+      letter-spacing: 3px;
+    }
+
+    section {
+      padding: 140px 10% 100px;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    h2 {
+      font-size: 2.4rem;
+      font-weight: 400;
+      margin-bottom: 60px;
+      letter-spacing: 3px;
+      position: relative;
+      display: inline-block;
+    }
+    h2::after {
+      content: '';
+      position: absolute;
+      width: 40px;
+      height: 1px;
+      background: var(--accent);
+      bottom: -12px;
+      left: 0;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1.4s ease, transform 1.4s ease;
+    }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 40px;
+    }
+    .card {
+      background: var(--card);
+      padding: 36px;
+      border: 1px solid rgba(15,157,88,0.15);
+      transition: all 0.5s ease;
+      backdrop-filter: blur(8px);
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    li { margin: 16px 0; padding-left: 26px; position: relative; }
+    li::before { content: '>'; color: var(--accent); position: absolute; left: 0; opacity: 0.7; }
+
+    .socials a {
+      color: var(--gray);
+      font-size: 1.9rem;
+      margin: 0 18px;
+      transition: color 0.4s ease;
+    }
+    .socials a:hover { color: var(--accent); }
+
+    footer {
+      text-align: center;
+      padding: 100px 20px 80px;
+      color: var(--gray);
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="parallax"></div>
+  <div class="grid-layer"></div>
+
+  <!-- Top-right Menu -->
+  <div class="menu-toggle" onclick="document.querySelector('nav').classList.toggle('visible')">
+    <i class="fas fa-bars"></i>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#about">ABOUT</a></li>
+      <li><a href="#skills">SKILLS</a></li>
+      <li><a href="#projects">PROJECTS</a></li>
+      <li><a href="#contact">CONTACT</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <div>
+      <img src="https://via.placeholder.com/300/000000/0f9d58?text=son" alt="son" class="profile-img"/>
+      <h1>son</h1>
+      <p class="subtitle">WEB3 COMMUNITY ARCHITECT & DEGEN STRATEGIST</p>
+    </div>
+  </header>
+
+  <section id="about" class="reveal">
+    <h2>~ /about</h2>
+    <p style="max-width:860px; margin:0 auto; font-size:1.15rem; color:#ccc;">
+      I’m a Web3 degen with purpose — deep in the trenches of community management, raiding, degen trading, and content creation. I didn’t just stumble into the space — I stayed, learned, and kept showing up when others left. That’s what built my edge.<br><br>
+      My strength lies in understanding what drives real communities: energy, consistency, and trust. I’ve helped grow and manage vibrant ecosystems, led raid teams that actually convert, and created content that doesn’t just inform — it connects. From high-impact Twitter threads to meme raids and deep engagement strategies, I know how to turn attention into loyalty.<br><br>
+      On the trading side, I’ve lived through pumps, rugs, and everything in between — but I treat every cycle like a classroom. Degen trading taught me risk, timing, and most of all, emotional discipline.<br><br>
+      This isn’t just a side hustle — it’s culture, community, and a chance to build something real. Whether I’m helping projects grow from the ground up or educating newcomers with relatable content, I move with one focus: <strong style="color:var(--accent)">build with people, not just for them</strong>.<br><br>
+      If you're looking for someone who knows how to activate a crowd, manage the madness, and create value that lasts — I’m locked in. Let's build.
+    </p>
+  </section>
+
+  <section id="skills" class="reveal">
+    <h2>~ /skills</h2>
+    <div class="grid">
+      <div class="card"> ... your skills cards ... </div>
+      <!-- keep all your skill cards -->
+    </div>
+  </section>
+
+  <section id="projects" class="reveal">
+    <h2>~ /projects</h2>
+    <div class="grid">
+      <!-- your project cards -->
+    </div>
+  </section>
+
+  <section id="contact" class="reveal">
+    <h2>~ /contact</h2>
+    <p style="margin-bottom:40px; text-align:center;">Always raiding. Always replying.</p>
+    <div class="socials" style="text-align:center; font-size:2rem;">
+      <a href="https://x.com/@only_SONofweb3/" target="_blank">Twitter</a>
+      <a href="https://t.me/mhillls" target="_blank">Telegram</a>
+      <a href="https://discord.com/">Discord</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 son — Built with discipline in public</p>
+  </footer>
+
+  <script>
+    // Show nav after leaving hero
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('nav');
+      if (window.scrollY > window.innerHeight * 0.5) {
+        nav.classList.add('visible');
+      } else {
+        nav.classList.remove('visible');
+      }
+
+      // Subtle parallax
+      const scrolled = window.pageYOffset;
+      document.querySelector('.parallax').style.transform = `translateY(${scrolled * 0.12}px)`;
+      document.querySelector('.grid-layer').style.transform = `translateY(${scrolled * 0.08}px)`;
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('active');
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Typing effect
+    const h1 = document.querySelector('h1');
+    const text = "son";
+    let i = 0;
+    h1.textContent = '';
+    const type = () => {
+      if (i < text.length) {
+        h1.textContent += text.charAt(i);
+        i++;
+        setTimeout(type, 300);
+      }
+    };
+    setTimeout(type, 1000);
+  </script>
+</body>
+</html>
